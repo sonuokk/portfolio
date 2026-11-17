@@ -1,31 +1,66 @@
 # Sonu's portfolio
 
-A responsive React portfolio with an Express API and MongoDB-backed contact form.
+A responsive React portfolio with an Express API for local development and Vercel Functions for deployment. The project cards, resume downloads, and contact form are configured in this repository.
+
+## Requirements
+
+- Node.js 18 or newer
+- npm
+- MongoDB, only if you want contact form submissions saved
 
 ## Run locally
 
-1. Install Node.js 18 or newer and MongoDB.
-2. Run `npm install`.
-3. Copy `.env.example` to `.env` and set `MONGODB_URI` if using the contact form.
-4. Run `npm run dev`, then open the Vite URL shown in the terminal.
+```sh
+npm install
+```
 
-The portfolio and resume downloads work without MongoDB. The contact form stores messages in the `contact_messages` collection when MongoDB is configured; otherwise, visitors are shown a direct email link.
+Copy `.env.example` to `.env`. Set `MONGODB_URI` if you want to persist contact messages; the example uses a local MongoDB instance. Then start both the Vite frontend and Express API:
 
-## Manage projects and images
+```sh
+npm run dev
+```
 
-The four projects from the resumes are listed in `src/data/projects.js`. Add another object to that array to add a project card. For a project image, copy the file into `public/images/projects/` and set its `image` field to a path such as `/images/projects/my-project.jpg`. Leave `image` empty to use the built-in placeholder artwork. Each project can also include its title, description, stack, and accessible `imageAlt` text.
+Open the Vite URL printed in the terminal (usually `http://localhost:5173`). Vite proxies `/api` requests to the local Express server on port 5000. The portfolio and resume downloads work without MongoDB; the contact form provides a direct email fallback if its API is not configured.
 
-## Production
+For a frontend-only development server, run `npm run dev:client`. For the API alone, run `npm run dev:server`.
 
-Run `npm run build` to create the static frontend in `dist/`. Start the API with `npm start`. Set `CLIENT_ORIGIN` to the deployed frontend origin and provide `MONGODB_URI` in the server environment.
+## Projects and images
+
+Project order and card content are maintained in [`src/data/projects.js`](src/data/projects.js). Add an object to the `projects` array with a unique `number` and `name`, a short `type` and `description`, a technology `stack`, and a color `tone` (`sage`, `lavender`, `peach`, or `blue`). Add `repo` and `demo` URLs when available.
+
+To add a project screenshot:
+
+1. Put the image in `public/images/projects/`.
+2. Set the project's `image` to its public path, for example `/images/projects/my-project.jpg`.
+3. Add a descriptive `imageAlt` value.
+
+Leave `image` empty to use the generated artwork placeholder. A starter `.gitkeep` file keeps the images folder in the repository.
+
+## Resumes
+
+The four downloadable resume PDFs live in `public/resumes/`. The menu and download labels are configured in `src/App.jsx`; keep each `file` value in sync with the matching filename in that folder.
+
+## Build and run the Express server
+
+Create a static production frontend with:
+
+```sh
+npm run build
+```
+
+The generated site is in `dist/`. To run the Express server, set `MONGODB_URI`, `PORT`, and `CLIENT_ORIGIN` in `.env`, then run:
+
+```sh
+npm start
+```
 
 ## Deploy to Vercel
 
-The Vite frontend is served as a static site, and the files in `api/` provide Vercel Functions for `/api/health` and `/api/contact`.
+Vercel serves the Vite build and deploys the files in `api/` as serverless functions. The Express server in `server/` is for local development or a separate Node.js host.
 
-1. Push this folder to a GitHub repository.
-2. In Vercel, choose **Add New → Project**, import the repository, and keep the detected Vite settings: build command `npm run build`, output directory `dist`, and project root `.`.
-3. If you want the contact form to save messages, create a MongoDB Atlas database and database user. Add `MONGODB_URI` to the Vercel project's Environment Variables for Production (and Preview if desired). Redeploy after saving it.
-4. Visit `/api/health` on the deployed domain, then send a message through the contact form.
+1. Push the project to a GitHub repository and import it with **Vercel → Add New → Project**.
+2. Use the project root as the Root Directory, `npm run build` as the Build Command, and `dist` as the Output Directory.
+3. For saved contact form submissions, create a MongoDB database and add `MONGODB_URI` to the Vercel project's Environment Variables. Redeploy after changing environment variables.
+4. Check `/api/health` on the deployed domain. With MongoDB configured, submit a message through the contact form to confirm storage.
 
-The portfolio and resume downloads work without MongoDB. Without `MONGODB_URI`, the API returns a setup message and the contact section still shows the direct email link.
+The site and resume downloads work without MongoDB. If the database is not configured, the contact endpoint returns a setup message and the page offers Sonu's email as an alternative.
