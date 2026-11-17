@@ -1,4 +1,7 @@
 import 'dotenv/config';
+import { existsSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import { MongoClient } from 'mongodb';
@@ -6,6 +9,8 @@ import { MongoClient } from 'mongodb';
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 const allowedOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const distDirectory = resolve(projectRoot, 'dist');
 let messages;
 
 app.use(cors({ origin: allowedOrigin }));
@@ -36,6 +41,15 @@ app.post('/api/contact', async (req, res) => {
     return res.status(500).json({ error: 'We could not send your message. Please try again or email Sonu directly.' });
   }
 });
+
+// In production, serve the Vite build and the API from the same origin.
+if (existsSync(distDirectory)) {
+  app.use(express.static(distDirectory));
+  app.get('*', (req, res, next) => {
+    if (req.path === '/api' || req.path.startsWith('/api/')) return next();
+    return res.sendFile(resolve(distDirectory, 'index.html'), (error) => error && next(error));
+  });
+}
 
 const mongoUri = process.env.MONGODB_URI;
 if (mongoUri) {

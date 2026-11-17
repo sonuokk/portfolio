@@ -48,11 +48,20 @@ Create a static production frontend with:
 npm run build
 ```
 
-The generated site is in `dist/`. To run the Express server, set `MONGODB_URI`, `PORT`, and `CLIENT_ORIGIN` in `.env`, then run:
+The generated site is in `dist/`. When that folder exists, Express serves the built portfolio and API together from one origin. To run the Express server, set `MONGODB_URI` in `.env` if you want contact form messages saved, then run:
 
 ```sh
 npm start
 ```
+
+## Deploy to Render
+
+Render can host the built Vite frontend and Express API together as one Node web service.
+
+1. Push the project to a GitHub repository and create a **Render → New → Web Service** from it.
+2. Use the repository root as the Root Directory, `npm install && npm run build` as the Build Command, and `npm start` as the Start Command.
+3. Add `MONGODB_URI` as an environment variable if you want the contact form to save submissions. Do not set `PORT`; Render provides it automatically. `CLIENT_ORIGIN` is not needed when the frontend and API use the same Render service.
+4. Deploy, then check `/api/health` on the Render URL and try the contact form.
 
 ## Deploy to Vercel
 
