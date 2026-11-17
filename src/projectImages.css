@@ -1,0 +1,3 @@
+.project-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.project-visual.has-image:before,.project-visual.has-image:after{display:none}
+.project-visual.has-image .project-index,.project-visual.has-image .visual-caption{background:#20231fbf;color:#fff;padding:7px 9px;border-radius:3px}
